@@ -1,0 +1,148 @@
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Assest Management 
+    link(rel="stylesheet", href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.min.css")
+    link(rel="stylesheet", href="https://cdn.datatables.net/v/dt/dt-2.0.3/datatables.min.css")
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css", integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous")
+    script(src="https://code.jquery.com/jquery-3.5.1.min.js")
+    script(src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js")
+    script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js")
+    script(src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
+    script.
+      $(document).ready(function() {
+        $('#myTable').DataTable({
+            columns : [
+          { data : 'asset_branch_id'},
+          { data : 'asset_catID'},
+          { data : 'asset_id'},
+          { data : 'asset_is_active'},
+          { data : 'asset_is_scrap'},
+          { data : 'asset_name'},
+          { data : 'make'},
+          { data : 'model'},
+          { data : 'serial_no'},
+        //-   { data : 'updatedAt'},
+          { data : 'year'},
+          {
+            data: null,
+            render: function(data, type, row) {
+                return '<button class="btn btn-primary" onclick="redirectToPage(' + row.asset_id + ')">View</button>';
+            }
+           },
+                     {
+            data: null,
+            render: function(data, type, row) {
+                return '<button class="btn btn-danger" onclick="ScrapItem(' + row.asset_id + ')">Scrap</button>';
+            }
+           }               
+        ]
+        });
+
+        $.ajax({
+          url: '/api/assets', 
+          method: 'GET',
+          success: function(response) {
+            
+            $('#myTable').DataTable().clear().draw();
+            
+            $('#myTable').DataTable().rows.add(response).draw();
+          },
+          error: function(xhr, status, error) {
+            console.error('Error fetching data:', error);
+          }
+        });
+
+
+      });
+
+  body 
+    nav(class="navbar navbar-expand-lg navbar-dark bg-dark")
+      .container
+        a(class="navbar-brand", href="#") Asset Management
+        button(class="navbar-toggler", type="button", data-toggle="collapse", data-target="#navbarNav", aria-controls="navbarNav", aria-expanded="false", aria-label="Toggle navigation")
+          span(class="navbar-toggler-icon")
+        #navbarNav.navbar-collapse.collapse
+          ul(class="navbar-nav")
+            //- li(class="nav-item active")
+            //-   a(class="nav-link", href="#") Home
+            li(class="nav-item dropdown")
+              a(class="nav-link dropdown-toggle", href="#", id="navbarDropdown", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") Employee
+              .dropdown-menu(aria-labelledby="navbarDropdown")
+                a(class="dropdown-item", href="add-employee") Add Employee
+                //- a(class="dropdown-item", href="view-employee") View Employee 
+                a(class="dropdown-item", href="list-employee") Employee List
+                //- a(class="dropdown-item", href="#") Submenu 3
+            li(class="nav-item dropdown")
+              a(class="nav-link dropdown-toggle", href="#", id="navbarDropdown2", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") Asset
+              .dropdown-menu(aria-labelledby="navbarDropdown2")
+                a(class="dropdown-item", href="add-asset") Add Asset
+                a(class="dropdown-item", href="list-asset") Asset List
+                a(class="dropdown-item", href="asset-entry") Issue and Return Entry
+                a(class="dropdown-item", href="asset-history") Asset History
+
+    table#myTable.display
+      thead
+        tr
+          th asset_branch_id
+          th asset_catID
+          th asset_id
+          th asset_is_active
+          th asset_is_scrap
+          th asset_name
+          th make
+          th model
+          th serial_no
+          th year
+      tbody
+
+    script.
+      $(document).ready(function() {
+        var table = $('#myTable').DataTable();
+        $.ajax({
+          url: '/api/assets', 
+          method: 'GET',
+          success: function(response) {
+            table.clear().rows.add(response).draw();
+          },
+          error: function(xhr, status, error) {
+            console.error('Error fetching data:', error);
+          }
+        });
+      });
+
+      function redirectToPage(assetId) {
+        window.location.href = '/view-asset?assetId=' + assetId;
+        }
+
+      function ScrapItem(assetId) {
+          const formData = {
+            asset_is_scrap: true 
+          }
+          fetch('/api/asset/'+ assetId , {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to submit form');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Form submitted successfully:', data);
+            window.alert("Form submitted successfully")
+            location.reload();
+          })
+          .catch(error => {
+            window.alert('Error submitting form')
+            console.error('Error submitting form:', error);
+          });
+
+        }
+

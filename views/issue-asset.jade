@@ -1,0 +1,140 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Asset Management
+    link(rel="stylesheet", href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.min.css")
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css", integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous")
+    script(src="https://code.jquery.com/jquery-3.5.1.min.js")
+    script(src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js")
+    script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
+    script.
+      $(document).ready(function() {
+        $.ajax({
+          url: '/api/assets',
+          method: 'GET',
+          success: function(response) {
+            $('#assetDropdown').empty();
+            response.forEach(function(asset) {
+              $('#assetDropdown').append($('<option>', {
+                value: asset.asset_id,
+                text: asset.asset_name
+              }));
+            });
+          },
+          error: function(xhr, status, error) {
+            console.error('Error fetching assets:', error);
+          }
+        });      
+        $('#transactionForm').submit(function(event) {
+          event.preventDefault();
+          var formData = {
+   
+            asset_id: $('#assetDropdown').val(),
+            emp_id: $('#empId').val(),
+            asset_name: $('#assetName').val(),
+            asset_category: $('#assetCategory').val(),
+            make: $('#make').val(),
+            model: $('#model').val(),
+            year: $('#year').val(),
+            serialNo: $('#serialNo').val(),
+            assetIsActive: $('#assetIsActive').is(':checked'),
+            branchId: $('#branchId').val(),
+            asset_status: $('#assetStatus').val(),
+            transaction_date: $('#transactionDate').val(),
+            notes: $('#notes').val() // Adding notes field
+          };
+          
+          $.ajax({
+            type: 'POST',
+            url: '/api/asset_transactions',
+            data: JSON.stringify(formData),
+            contentType: 'application/json',
+            success: function(data) {
+              console.log('Transaction submitted successfully:', data);
+              alert('Transaction submitted successfully');
+              $('#transactionForm')[0].reset();
+            },
+            error: function(xhr, status, error) {
+              console.error('Error submitting transaction:', error);
+              alert('Error submitting transaction');
+            }
+          });
+        });
+      })
+
+  body
+    nav(class="navbar navbar-expand-lg navbar-dark bg-dark")
+      .container
+        a(class="navbar-brand", href="#") Asset Management
+        button(class="navbar-toggler", type="button", data-toggle="collapse", data-target="#navbarNav", aria-controls="navbarNav", aria-expanded="false", aria-label="Toggle navigation")
+          span(class="navbar-toggler-icon")
+        #navbarNav.navbar-collapse.collapse
+          ul(class="navbar-nav")
+            //- li(class="nav-item active")
+            //-   a(class="nav-link", href="#") Home
+            li(class="nav-item dropdown")
+              a(class="nav-link dropdown-toggle", href="#", id="navbarDropdown", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") Employee
+              .dropdown-menu(aria-labelledby="navbarDropdown")
+                a(class="dropdown-item", href="add-employee") Add Employee
+                //- a(class="dropdown-item", href="view-employee") View Employee 
+                a(class="dropdown-item", href="list-employee") Employee List
+                //- a(class="dropdown-item", href="#") Submenu 3
+            li(class="nav-item dropdown")
+              a(class="nav-link dropdown-toggle", href="#", id="navbarDropdown2", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") Asset
+              .dropdown-menu(aria-labelledby="navbarDropdown2")
+                a(class="dropdown-item", href="add-asset") Add Asset
+                a(class="dropdown-item", href="list-asset") Asset List
+                a(class="dropdown-item", href="asset-entry") Issue and Return Entry
+                a(class="dropdown-item", href="asset-history") Asset History
+
+
+    .container
+      h2 Asset Entry
+      form#transactionForm(method="POST")
+        .form-group
+          label(for="assetDropdown") Select Asset:
+          select#assetDropdown.form-select
+        .form-group
+          label(for="empId") Employee ID:
+          input#empId.form-control(type="text", placeholder="Enter employee ID", required)
+        .form-group
+          label(for="assetName") Asset Name:
+          input#assetName.form-control(type="text", placeholder="Enter asset name", required)
+        .form-group
+          label(for="assetCategory") Asset Category:
+          input#assetCategory.form-control(type="text", placeholder="Enter asset category", required)
+        .form-group
+          label(for="make") Make:
+          input#make.form-control(type="text", placeholder="Enter make", required)
+        .form-group
+          label(for="model") Model:
+          input#model.form-control(type="text", placeholder="Enter model", required)
+        .form-group
+          label(for="year") Year:
+          input#year.form-control(type="number", placeholder="Enter year", required)
+        .form-group
+          label(for="serialNo") Serial No:
+          input#serialNo.form-control(type="text", placeholder="Enter serial number", required)
+        .form-group
+          .form-check
+            input#assetIsActive.form-check-input(type="checkbox" , required)
+            label.form-check-label(for="assetIsActive") Asset is active
+        .form-group
+          label(for="branchId") Branch ID:
+          input#branchId.form-control(type="number", placeholder="Enter branch ID" , required)
+        .form-group
+          label(for="transactionDate") Transaction Date:
+          input#transactionDate.form-control(type="date", placeholder="Enter transaction date", required)           
+        .form-group
+          label(for="assetStatus") Asset Status:
+          select#assetStatus.form-control(name="assetStatus", required)
+            option(value="issued") Issued
+            option(value="repair") Repair
+            option(value="returned") Return
+        .form-group
+          label(for="notes") Notes: 
+          textarea#notes.form-control(name="notes", placeholder="Enter notes", required)
+        button.btn.btn-primary(type="submit") Submit

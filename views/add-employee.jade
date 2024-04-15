@@ -1,0 +1,120 @@
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Assest Management 
+    link(rel="stylesheet", href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.min.css")
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css", integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous")
+
+    script.
+      document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+
+        form.addEventListener('submit', function(event) {
+          event.preventDefault(); // Prevent default form submission
+
+          // Get form data
+          const formData = {
+            emp_name: document.getElementById('empName').value,
+            address_1: document.getElementById('address1').value,
+            address_2: document.getElementById('address2').value,
+            city: document.getElementById('city').value,
+            pincode: document.getElementById('pincode').value,
+            designation: document.getElementById('designation').value,
+            date_of_hire: new Date(document.getElementById('dateOfHire').value).toISOString(), // Convert to ISO format
+            employee_is_active: true,
+            emp_branch_id: document.getElementById('branchId').value
+          };
+
+      console.log("data : ",formData)
+                // Make a POST request to the API endpoint
+          fetch('/api/employees', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to submit form');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Handle successful response
+            console.log('Form submitted successfully:', data);
+            // Reset the form after submission
+            window.alert("Form submitted successfully")
+            form.reset();
+          })
+          .catch(error => {
+            // Handle error
+            console.error('Error submitting form:', error);
+            window.alert('Error submitting form')
+          });
+        });
+      });
+  body 
+    
+   nav(class="navbar navbar-expand-lg navbar-dark bg-dark")
+      .container
+        a(class="navbar-brand", href="#") Asset Management
+        button(class="navbar-toggler", type="button", data-toggle="collapse", data-target="#navbarNav", aria-controls="navbarNav", aria-expanded="false", aria-label="Toggle navigation")
+          span(class="navbar-toggler-icon")
+        #navbarNav.navbar-collapse.collapse
+          ul(class="navbar-nav")
+            //- li(class="nav-item active")
+            //-   a(class="nav-link", href="#") Home
+            li(class="nav-item dropdown")
+              a(class="nav-link dropdown-toggle", href="#", id="navbarDropdown", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") Employee
+              .dropdown-menu(aria-labelledby="navbarDropdown")
+                a(class="dropdown-item", href="add-employee") Add Employee
+                //- a(class="dropdown-item", href="view-employee") View Employee 
+                a(class="dropdown-item", href="list-employee") Employee List
+                //- a(class="dropdown-item", href="#") Submenu 3
+            li(class="nav-item dropdown")
+              a(class="nav-link dropdown-toggle", href="#", id="navbarDropdown2", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false") Asset
+              .dropdown-menu(aria-labelledby="navbarDropdown2")
+                a(class="dropdown-item", href="add-asset") Add Asset
+                a(class="dropdown-item", href="list-asset") Asset List
+                a(class="dropdown-item", href="asset-entry") Issue and Return Entry
+                a(class="dropdown-item", href="asset-history") Asset History
+    .container
+      h2 Add a Employee 
+      form
+        .form-group
+          label(for="empName") Employee Name:
+          input#empName.form-control(type="text", placeholder="Enter employee name", required)
+        .form-group
+          label(for="address1") Address 1:
+          input#address1.form-control(type="text", placeholder="Enter address 1", required)
+        .form-group
+          label(for="address2") Address 2:
+          input#address2.form-control(type="text", placeholder="Enter address 2", required)
+        .form-row
+          .form-group.col-md-6
+            label(for="city") City:
+            input#city.form-control(type="text", placeholder="Enter city", required)
+          .form-group.col-md-6
+            label(for="pincode") Pincode:
+            input#pincode.form-control(type="number", placeholder="Enter pincode", required)
+        .form-group
+          label(for="designation") Designation:
+          input#designation.form-control(type="text", placeholder="Enter designation", required)
+        .form-group
+          label(for="dateOfHire") Date of Hire:
+          input#dateOfHire.form-control(type="date", required)
+        //- .form-group
+        //-   .form-check
+        //-     input#employeeIsActive.form-check-input(type="checkbox", required)
+        //-     label.form-check-label(for="employeeIsActive") Employee is active
+        .form-group
+          label(for="branchId") Branch ID:
+          input#branchId.form-control(type="number", placeholder="Enter branch ID", required)
+        button.btn.btn-primary(type="submit") Submit
+
+     script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js")
+    script(src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js")
+    script(src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js")
+    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
